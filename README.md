@@ -42,7 +42,14 @@ module.exports = {
         //there are some tokens in the file that can be replaced
         //with the file listing and the digest stamp. See
         //manifest.template for an example.
-        manifestTemplate: ''
+        manifestTemplate: '',
+
+        // Paths/Links to extra cache files to be included in the
+        // manifest.
+        extras: [],
+
+        // Fallback for inaccessible resources.
+        fallbacks: {}
     })
 }
 ```

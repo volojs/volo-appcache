@@ -89,7 +89,7 @@ function generateDigest(q, files, dir) {
  *     @param  {String} dir the directory that has the contents that should
  *     be included in the manifest. Default is 'www-built'
  *
- *     @param  {Sting} htmlPath the path to the file inside the "dir" directory
+ *     @param  {String} htmlPath the path to the file inside the "dir" directory
  *     that is an HTML file that should get the "manifest" attribute inserted in
  *     its HTML tag. Default is 'index.html'.
  *
@@ -97,6 +97,11 @@ function generateDigest(q, files, dir) {
  *     manifest. Defaults to the manifest.template in the directory housing
  *     this module. Note that the template contains some tokens replaced
  *     by this command.
+ *
+ *     @param {Array} extras: a set of paths to extra cache files to be included
+ *     in the manifest file.
+ *
+ *     @param {Object} fallbacks fallback values for inaccessible resources.
  *
  * @return {Object} The volo command.
  */
