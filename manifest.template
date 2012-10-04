@@ -9,3 +9,6 @@ NETWORK:
 *
 http://*
 https://*
+
+FALLBACK:
+{fallback}

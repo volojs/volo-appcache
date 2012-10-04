@@ -104,6 +104,8 @@ module.exports = function (options) {
     //Set up defaults
     var dir = options.dir || 'www-built',
         htmlPath = options.htmlPath || 'index.html',
+        extras = options.extras || [],
+        fallbacks = options.fallbacks || {},
         manifestTemplate = options.manifestTemplate ||
                            __dirname + '/manifest.template',
         trailingChar = dir.charAt(dir.length - 1);
@@ -140,6 +142,13 @@ module.exports = function (options) {
                     start = (start !== -1) ? (start + 11) : 0;
                     return file.substr(start, file.length);
                 });
+                // include the extra cache files
+                appFiles.push.apply(appFiles, extras);
+
+                // include the fallbacks
+                fallbacks = Object.keys(fallbacks).map(function (key) {
+                    return key + " " + fallbacks[key];
+                });
 
                 master = master
                         .replace(/<html\s?/, '<html manifest="manifest.appcache" ')
@@ -149,7 +158,8 @@ module.exports = function (options) {
                 generateDigest(q, fullFilePaths, dir).then(function (stamp) {
                     manifest = v.template(manifest, {
                         files : appFiles.join('\n'),
-                        stamp : stamp
+                        stamp : stamp,
+                        fallback: fallbacks.join('\n')
                     });
                     v.write(dir + '/manifest.appcache', manifest);
                 }).then(d.resolve, d.reject);
