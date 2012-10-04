@@ -29,6 +29,7 @@
 **/
 
 var fs = require('fs'),
+    path = require('path'),
     crypto = require('crypto');
 
 function generateDigest(q, files, dir) {
@@ -105,11 +106,11 @@ module.exports = function (options) {
     var dir = options.dir || 'www-built',
         htmlPath = options.htmlPath || 'index.html',
         manifestTemplate = options.manifestTemplate ||
-                           __dirname + '/manifest.template',
+                           __dirname + path.sep + 'manifest.template',
         trailingChar = dir.charAt(dir.length - 1);
 
     //Make sure dir does not have a trailing slash
-    if (trailingChar === '/' || trailingChar === '\\') {
+    if (trailingChar === path.sep) {
         dir = dir.substring(0, dir.length - 1);
     }
 
@@ -130,13 +131,13 @@ module.exports = function (options) {
             try {
                 var q = v.require('q'),
                     manifest = v.read(manifestTemplate),
-                    master = v.read(dir + '/' + htmlPath),
+                    master = v.read(dir + path.sep + htmlPath),
                     fullFilePaths,
                     appFiles;
 
                 fullFilePaths = v.getFilteredFileList(dir, null, /\.htaccess/);
                 appFiles = fullFilePaths.map(function (file) {
-                    var start = file.indexOf('/' + dir + '/');
+                    var start = file.indexOf(path.sep + dir + path.sep);
                     start = (start !== -1) ? (start + 11) : 0;
                     return file.substr(start, file.length);
                 });
@@ -144,14 +145,14 @@ module.exports = function (options) {
                 master = master
                         .replace(/<html\s?/, '<html manifest="manifest.appcache" ')
                         .replace(/manifest\.appcache"\s>/, 'manifest.appcache">');
-                v.write(dir + '/' + htmlPath, master);
+                v.write(dir + path.sep + htmlPath, master);
 
                 generateDigest(q, fullFilePaths, dir).then(function (stamp) {
                     manifest = v.template(manifest, {
                         files : appFiles.join('\n'),
                         stamp : stamp
                     });
-                    v.write(dir + '/manifest.appcache', manifest);
+                    v.write(dir + path.sep + 'manifest.appcache', manifest);
                 }).then(d.resolve, d.reject);
             } catch (e) {
                 d.reject(e);
