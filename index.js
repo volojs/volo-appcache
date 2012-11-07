@@ -77,6 +77,10 @@ function generateDigest(q, files, dir) {
     return masterDeferred.promise;
 }
 
+function frontSlash(path) {
+    return path.replace(/\\/g, '/');
+}
+
 /**
  * Returns a volo command that is wired up to use the given
  * directory to generate a manifest.
@@ -136,6 +140,7 @@ module.exports = function (options) {
 
                 fullFilePaths = v.getFilteredFileList(dir, null, /\.htaccess/);
                 appFiles = fullFilePaths.map(function (file) {
+                    file = frontSlash(file);
                     var start = file.indexOf('/' + dir + '/');
                     start = (start !== -1) ? (start + 11) : 0;
                     return file.substr(start, file.length);
