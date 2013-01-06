@@ -47,6 +47,34 @@ module.exports = {
 }
 ```
 
+## Overriding the basic manifest template
+
+The `manifestTemplate` option mentioned above allows you to override the
+[basic template](https://github.com/volojs/volo-appcache/blob/master/manifest.template)
+used for the manifest. This can be useful if you want to specify  extra URLs to
+cache, or specify fallbacks for some URLs. Here is an example of a template
+that specifies two other URLs to cache and specifies a fallback for
+`/submit.php`:
+
+```text
+CACHE MANIFEST
+# {stamp}
+
+CACHE:
+http://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js
+http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js
+{files}
+
+# catch-all for anything else
+NETWORK:
+*
+http://*
+https://*
+
+FALLBACK:
+/submit.php offline.html
+```
+
 ## Usage
 
 While in the project directory, just type:
