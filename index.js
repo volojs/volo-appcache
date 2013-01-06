@@ -142,8 +142,8 @@ module.exports = function (options) {
                 });
 
                 master = master
-                        .replace(/<html\s?/, '<html manifest="manifest.appcache" ')
-                        .replace(/manifest\.appcache"\s>/, 'manifest.appcache">');
+                        .replace(/<html\s?/g, '<html manifest="manifest.appcache" ')
+                        .replace(/manifest\.appcache"\s>/g, 'manifest.appcache">');
                 v.write(dir + '/' + htmlPath, master);
 
                 generateDigest(q, fullFilePaths, dir).then(function (stamp) {
