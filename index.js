@@ -29,7 +29,8 @@
 **/
 
 var fs = require('fs'),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    manifestAttrRegExp = /manifest="manifest\.appcache"/;
 
 function generateDigest(q, files, dir) {
 
@@ -138,18 +139,42 @@ module.exports = function (options) {
                     fullFilePaths,
                     appFiles;
 
-                fullFilePaths = v.getFilteredFileList(dir, null, /\.htaccess/);
+                fullFilePaths = v.getFilteredFileList(dir, null, /manifest\.appcache/);
                 appFiles = fullFilePaths.map(function (file) {
                     file = frontSlash(file);
-                    var start = file.indexOf('/' + dir + '/');
+
+                    var parts, part,
+                        start = file.indexOf('/' + dir + '/');
+
                     start = (start !== -1) ? (start + 11) : 0;
-                    return file.substr(start, file.length);
+                    file = file.substr(start, file.length);
+
+                    //Weed out files that start with a dot, as they are most
+                    //likely hidden files not to cache.
+                    //In particular, .htacccess
+                    parts = file.split('/');
+                    part = parts[parts.length - 1];
+                    if (file === 'manifest.appcache' ||
+                        (part && part.indexOf('.') === 0)) {
+                        return '';
+                    } else {
+                        return file;
+                    }
+                }).filter(function (file) {
+                    //Filter out files removed.
+                    return !!file;
                 });
 
-                master = master
-                        .replace(/<html\s?/g, '<html manifest="manifest.appcache" ')
-                        .replace(/manifest\.appcache"\s>/g, 'manifest.appcache">');
-                v.write(dir + '/' + htmlPath, master);
+                //If the html file does not already have a manifest attribute,
+                //add it. Allow for multiple html tags via IE conditional
+                //comments
+                if (!manifestAttrRegExp.test(master)) {
+                    master = master
+                            .replace(/<html\s?/g, '<html manifest="manifest.appcache" ')
+                            .replace(/manifest\.appcache"\s>/g, 'manifest.appcache">');
+
+                    v.write(dir + '/' + htmlPath, master);
+                }
 
                 generateDigest(q, fullFilePaths, dir).then(function (stamp) {
                     manifest = v.template(manifest, {
