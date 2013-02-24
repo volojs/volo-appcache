@@ -103,6 +103,9 @@ function frontSlash(path) {
  *     this module. Note that the template contains some tokens replaced
  *     by this command.
  *
+ *     @param {RegExp or Function} a regular expression (function) matching
+ *     (returning true) additional files to exclude from the appcache.
+ *
  * @return {Object} The volo command.
  */
 module.exports = function (options) {
@@ -164,6 +167,16 @@ module.exports = function (options) {
                     //Filter out files removed.
                     return !!file;
                 });
+                if (options.exclude) {
+                    // filter out additional files, with a function or regexp
+                    appFiles = appFiles.filter(function(file) {
+                        if (typeof(options.exclude) === 'function') {
+                            return !(options.exclude(file));
+                        } else {
+                            return !options.exclude.test(file);
+                        }
+                    });
+                }
 
                 //If the html file does not already have a manifest attribute,
                 //add it. Allow for multiple html tags via IE conditional
